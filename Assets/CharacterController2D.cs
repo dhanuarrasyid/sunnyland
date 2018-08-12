@@ -5,7 +5,7 @@ public class CharacterController2D : MonoBehaviour
 {
 	[SerializeField] private float m_JumpForce = 400f;							// Amount of force added when the player jumps.
 	[Range(0, 1)] [SerializeField] private float m_CrouchSpeed = .36f;			// Amount of maxSpeed applied to crouching movement. 1 = 100%
-    [Range(0, 1)] [SerializeField] private float m_ClimbSpeed = .36f;          // Amount of maxSpeed applied to crouching movement. 1 = 100%
+    //[Range(0, 1)] [SerializeField] private float m_ClimbSpeed = .36f;          // Amount of maxSpeed applied to crouching movement. 1 = 100%
 	[Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;	// How much to smooth out the movement
 	[SerializeField] private bool m_AirControl = false;							// Whether or not a player can steer while jumping;
 	[SerializeField] private LayerMask m_WhatIsGround;							// A mask determining what is ground to the character
@@ -24,12 +24,15 @@ public class CharacterController2D : MonoBehaviour
 	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
 
+    private float m_GravityScale;
+
 	[Header("Events")]
 	[Space]
 
 	public UnityEvent OnLandEvent;
-    public UnityEvent OnClimbEvent;
     public UnityEvent OffGroundEvent;
+    public UnityEvent ClimbEnterEvent;
+    public UnityEvent ClimbExitEvent;
 
 	[System.Serializable]
 	public class BoolEvent : UnityEvent<bool> { }
@@ -39,22 +42,26 @@ public class CharacterController2D : MonoBehaviour
 
 
 
-
 	private void Awake()
 	{
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
+        m_GravityScale = m_Rigidbody2D.gravityScale;
 
 		if (OnLandEvent == null)
 			OnLandEvent = new UnityEvent();
 
 		if (OnCrouchEvent == null)
 			OnCrouchEvent = new BoolEvent();
-
-        if (OnClimbEvent == null)
-            OnClimbEvent = new UnityEvent();
         
         if (OffGroundEvent == null)
             OffGroundEvent = new UnityEvent();
+        
+        if (ClimbEnterEvent == null)
+            ClimbEnterEvent = new UnityEvent();
+
+        if (ClimbExitEvent == null)
+            ClimbExitEvent = new UnityEvent();
+        
 	}
 
 	private void FixedUpdate()
@@ -76,6 +83,7 @@ public class CharacterController2D : MonoBehaviour
                 OffGroundEvent.Invoke();
             }
         }
+
 	}
 
     private bool IsGrounded()
@@ -83,21 +91,6 @@ public class CharacterController2D : MonoBehaviour
         // The player is grounded if a circlecast to the groundcheck position hits anything designated as ground
         // This can be done using layers instead but Sample Assets will not overwrite your project settings
         Collider2D[] colliders = Physics2D.OverlapCircleAll(m_GroundCheck.position, k_GroundedRadius, m_WhatIsGround);
-        for (int i = 0; i < colliders.Length; i++)
-        {
-            if (colliders[i].gameObject != gameObject)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private bool IsClimbable()
-    {
-        // The player is climbing if a circlecast to the climb check position hits anything designated as climbable
-        // This can be done using layers instead but Sample Assets will not overwrite your project settings
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(m_ClimbCheck.position, k_ClimbRadius, m_WhatIsClimbable);
         for (int i = 0; i < colliders.Length; i++)
         {
             if (colliders[i].gameObject != gameObject)
@@ -123,11 +116,51 @@ public class CharacterController2D : MonoBehaviour
         return crouch;
     }
 
+    private bool CollidesWith(Collider2D collision, LayerMask mask)
+    {
+        return ((1 << collision.gameObject.layer) & mask) != 0;
+    }
+
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!m_Climbable && CollidesWith(collision, m_WhatIsClimbable))
+        {
+            Debug.Log("Enter " + collision.name);
+            m_Climbable = true;
+            SetClimbable(true);
+            ClimbEnterEvent.Invoke();
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        Debug.Log("Exit " + collision.name);
+        if (m_Climbable && CollidesWith(collision, m_WhatIsClimbable))
+        {
+            m_Climbable = false;
+            SetClimbable(false);
+            ClimbExitEvent.Invoke();
+        }
+    }
+
+    private void SetClimbable(bool canClimb)
+    {
+        
+        if (canClimb)
+        {
+            m_Rigidbody2D.gravityScale = 0;
+        } else
+        {
+            m_Rigidbody2D.gravityScale = m_GravityScale;
+        }
+    }
+
+
     public void Move(float horizontalMove, float verticalMove, bool jump)
 	{
 
         bool crouch = IsCrouched(verticalMove) && m_Grounded;
-        m_Climbable = IsClimbable();
         Vector3 targetVelocity;
 
 		//only control the player if grounded or airControl is turned on
@@ -165,14 +198,12 @@ public class CharacterController2D : MonoBehaviour
             // Move the character by finding the target velocity
 
 
-            if(m_Climbable)
+            if(m_Climbable && (m_Rigidbody2D.gravityScale < 0.01 || Mathf.Abs(verticalMove) > 0))
             {
-                OnClimbEvent.Invoke();
-                m_Rigidbody2D.isKinematic = !m_Grounded;
+                SetClimbable(true);
                 targetVelocity = new Vector2(horizontalMove * 10f, verticalMove * 10f);
             } else
             {
-                m_Rigidbody2D.isKinematic = false;
                 targetVelocity = new Vector2(horizontalMove * 10f, m_Rigidbody2D.velocity.y);   
             }
 			// And then smoothing it out and applying it to the character
@@ -192,13 +223,11 @@ public class CharacterController2D : MonoBehaviour
 			}
 		}
 
-
-        // If the player should climb
-
 		// If the player should jump...
-		if (m_Grounded && jump)
+        if ((m_Grounded || m_Climbable) && jump)
 		{
-			// Add a vertical force to the player.
+            // Add a vertical force to the player.
+            SetClimbable(false);
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
 		}
 	}
