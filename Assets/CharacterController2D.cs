@@ -18,6 +18,7 @@ public class CharacterController2D : MonoBehaviour
 	const float k_GroundedRadius = .5f; // Radius of the overlap circle to determine if grounded
     const float k_ClimbRadius = .5f;
 	private bool m_Grounded;            // Whether or not the player is grounded.
+    private bool m_Falling;
     private bool m_Climbable;
 	const float k_CeilingRadius = .2f; // Radius of the overlap circle to determine if the player can stand up
 	private Rigidbody2D m_Rigidbody2D;
@@ -33,6 +34,9 @@ public class CharacterController2D : MonoBehaviour
     public UnityEvent OffGroundEvent;
     public UnityEvent ClimbEnterEvent;
     public UnityEvent ClimbExitEvent;
+    public UnityEvent OnJumpEvent;
+    public UnityEvent OnFallEvent;
+
 
 	[System.Serializable]
 	public class BoolEvent : UnityEvent<bool> { }
@@ -62,16 +66,24 @@ public class CharacterController2D : MonoBehaviour
 
         if (ClimbExitEvent == null)
             ClimbExitEvent = new UnityEvent();
+
+        if (OnJumpEvent == null)
+            OnJumpEvent = new UnityEvent();
+        
+        if (OnFallEvent == null)
+            OnFallEvent = new UnityEvent();
         
 	}
 
 	private void FixedUpdate()
 	{
 		bool wasGrounded = m_Grounded;
+        bool wasFalling = m_Falling;
 		
 		if(IsGrounded())
         {
     		m_Grounded = true;
+            m_Falling = false;
             if (!wasGrounded)
             {
                 OnLandEvent.Invoke();
@@ -82,6 +94,11 @@ public class CharacterController2D : MonoBehaviour
             if(wasGrounded)
             {
                 OffGroundEvent.Invoke();
+            }
+            if(!wasFalling && m_Rigidbody2D.gravityScale > 0.01 && m_Rigidbody2D.velocity.y < 0)
+            {
+                m_Falling = true;
+                OnFallEvent.Invoke(); 
             }
         }
 
@@ -145,11 +162,11 @@ public class CharacterController2D : MonoBehaviour
         Debug.Log("Exit " + collision.name);
         if (CollidesWith(collision, m_WhatIsClimbable))
         {
-            SetClimbable(false);
+            SetClimbing(false);
         }
     }
 
-    private void SetClimbable(bool climbing)
+    private void SetClimbing(bool climbing)
     {
         if (!m_wasClimbing && climbing)
         {
@@ -210,11 +227,11 @@ public class CharacterController2D : MonoBehaviour
 
             if(m_Climbable && (m_Rigidbody2D.gravityScale < 0.01 || verticalMove > 0))
             {
-                SetClimbable(true);
+                SetClimbing(true);
                 targetVelocity = new Vector2(horizontalMove * 10f, verticalMove * 10f);
             } else
             {
-                SetClimbable(false);
+                SetClimbing(false);
                 targetVelocity = new Vector2(horizontalMove * 10f, m_Rigidbody2D.velocity.y);   
             }
 			// And then smoothing it out and applying it to the character
@@ -238,7 +255,8 @@ public class CharacterController2D : MonoBehaviour
         if ((m_Grounded || m_Climbable) && jump)
 		{
             // Add a vertical force to the player.
-            SetClimbable(false);
+            SetClimbing(false);
+            OnJumpEvent.Invoke();
 			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
 		}
 	}

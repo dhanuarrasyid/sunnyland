@@ -30,13 +30,13 @@ public class PlayerMovement : MonoBehaviour {
         if(Input.GetButtonDown("Jump"))
         {
             jump = true;
-            animator.SetBool("IsJumping", true);
         }
 
 	}
 
     private void FixedUpdate()
     {
+        
         controller.Move(horizontalMove * Time.fixedDeltaTime, 
                         verticalMove * Time.fixedDeltaTime, 
                         jump);
@@ -47,6 +47,7 @@ public class PlayerMovement : MonoBehaviour {
     public void OnLanding(){
         Debug.Log("Landed");
         offGround = false;
+        animator.SetBool("IsFalling", false);
         animator.SetBool("IsJumping", false);
         animator.SetBool("IsClimbing", false);
     }
@@ -58,9 +59,10 @@ public class PlayerMovement : MonoBehaviour {
         //animator.SetBool("IsJumping", jump);
     }
 
-    public void OnCrouch()
+    public void OnCrouch(bool isCrouched)
     {
-        Debug.Log("Crouch Event");
+        
+        Debug.Log("Crouch Event: " + isCrouched);
         animator.SetBool("IsClimbing", false);
         animator.SetBool("IsCrouching", crouch);
     }
@@ -70,11 +72,23 @@ public class PlayerMovement : MonoBehaviour {
         Debug.Log("Climb Started");
         animator.SetBool("IsClimbing", true);
         animator.SetBool("IsJumping", false);
+        animator.SetBool("IsFalling", false);
     }
 
     public void OnClimbExit()
     {
         Debug.Log("Climb Ended");
         animator.SetBool("IsClimbing", false);
+    }
+
+    public void OnJump()
+    {
+        animator.SetBool("IsJumping", true);
+    }
+
+    public void OnFall()
+    {
+        animator.SetBool("IsFalling", true);
+        animator.SetBool("IsJumping", false);
     }
 }
