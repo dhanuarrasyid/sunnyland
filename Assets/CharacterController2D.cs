@@ -39,6 +39,7 @@ public class CharacterController2D : MonoBehaviour
 
 	public BoolEvent OnCrouchEvent;
 	private bool m_wasCrouching = false;
+    private bool m_wasClimbing = false;
 
 
 
@@ -121,37 +122,44 @@ public class CharacterController2D : MonoBehaviour
         return ((1 << collision.gameObject.layer) & mask) != 0;
     }
 
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    private bool CollidesWith(LayerMask mask)
     {
-        if (!m_Climbable && CollidesWith(collision, m_WhatIsClimbable))
-        {
-            Debug.Log("Enter " + collision.name);
-            m_Climbable = true;
-            SetClimbable(true);
-            ClimbEnterEvent.Invoke();
-        }
+        Collider2D col = Physics2D.OverlapCircle(transform.position, k_GroundedRadius, mask);
+        return col && CollidesWith(col, mask);
     }
+
+
+    //private void OnTriggerEnter2D(Collider2D collision)
+    //{
+    //    if (!m_Climbable && CollidesWith(collision, m_WhatIsClimbable))
+    //    {
+    //        Debug.Log("Enter " + collision.name);
+    //        m_Climbable = true;
+    //        SetClimbable(true);
+    //        ClimbEnterEvent.Invoke();
+    //    }
+    //}
 
     private void OnTriggerExit2D(Collider2D collision)
     {
         Debug.Log("Exit " + collision.name);
-        if (m_Climbable && CollidesWith(collision, m_WhatIsClimbable))
+        if (CollidesWith(collision, m_WhatIsClimbable))
         {
-            m_Climbable = false;
             SetClimbable(false);
-            ClimbExitEvent.Invoke();
         }
     }
 
-    private void SetClimbable(bool canClimb)
+    private void SetClimbable(bool climbing)
     {
-        
-        if (canClimb)
+        if (!m_wasClimbing && climbing)
         {
+            ClimbEnterEvent.Invoke();
+            m_wasClimbing = true;
             m_Rigidbody2D.gravityScale = 0;
-        } else
+        } else if (m_wasClimbing && !climbing)
         {
+            ClimbExitEvent.Invoke();
+            m_wasClimbing = false;
             m_Rigidbody2D.gravityScale = m_GravityScale;
         }
     }
@@ -162,6 +170,8 @@ public class CharacterController2D : MonoBehaviour
 
         bool crouch = IsCrouched(verticalMove) && m_Grounded;
         Vector3 targetVelocity;
+        m_Climbable = CollidesWith(m_WhatIsClimbable);
+        //Debug.Log("Climbable?: " + CollidesWith(m_WhatIsClimbable));
 
 		//only control the player if grounded or airControl is turned on
         if (m_Grounded || m_AirControl || m_Climbable)
@@ -198,12 +208,13 @@ public class CharacterController2D : MonoBehaviour
             // Move the character by finding the target velocity
 
 
-            if(m_Climbable && (m_Rigidbody2D.gravityScale < 0.01 || Mathf.Abs(verticalMove) > 0))
+            if(m_Climbable && (m_Rigidbody2D.gravityScale < 0.01 || verticalMove > 0))
             {
                 SetClimbable(true);
                 targetVelocity = new Vector2(horizontalMove * 10f, verticalMove * 10f);
             } else
             {
+                SetClimbable(false);
                 targetVelocity = new Vector2(horizontalMove * 10f, m_Rigidbody2D.velocity.y);   
             }
 			// And then smoothing it out and applying it to the character

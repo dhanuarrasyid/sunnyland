@@ -33,24 +33,6 @@ public class PlayerMovement : MonoBehaviour {
             animator.SetBool("IsJumping", true);
         }
 
-        if (canClimb)
-        {
-            if (!climbing && climb)
-            {
-                climbing = true;
-                Debug.Log("Climbing");
-                animator.SetBool("IsJumping", false);
-                animator.SetBool("IsClimbing", true);
-            }else if (climbing && !climb)
-            {
-                climbing = false;
-                Debug.Log("Stopped Climbing");
-                animator.SetBool("IsClimbing", false);
-            }
-
-        }
-
-
 	}
 
     private void FixedUpdate()
@@ -66,6 +48,7 @@ public class PlayerMovement : MonoBehaviour {
         Debug.Log("Landed");
         offGround = false;
         animator.SetBool("IsJumping", false);
+        animator.SetBool("IsClimbing", false);
     }
 
     public void OffGround()
@@ -78,17 +61,20 @@ public class PlayerMovement : MonoBehaviour {
     public void OnCrouch()
     {
         Debug.Log("Crouch Event");
+        animator.SetBool("IsClimbing", false);
         animator.SetBool("IsCrouching", crouch);
     }
 
     public void OnClimbEnter()
     {
-        canClimb = true;
+        Debug.Log("Climb Started");
+        animator.SetBool("IsClimbing", true);
         animator.SetBool("IsJumping", false);
     }
 
     public void OnClimbExit()
     {
-        canClimb = false;
+        Debug.Log("Climb Ended");
+        animator.SetBool("IsClimbing", false);
     }
 }
