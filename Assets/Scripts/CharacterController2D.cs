@@ -22,7 +22,7 @@ public class CharacterController2D : MonoBehaviour
     private bool m_Climbable;
 	const float k_CeilingRadius = .2f; // Radius of the overlap circle to determine if the player can stand up
 	private Rigidbody2D m_Rigidbody2D;
-	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
+	public bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
 
     private float m_GravityScale;
@@ -144,18 +144,6 @@ public class CharacterController2D : MonoBehaviour
         Collider2D col = Physics2D.OverlapCircle(transform.position, k_GroundedRadius, mask);
         return col && CollidesWith(col, mask);
     }
-
-
-    //private void OnTriggerEnter2D(Collider2D collision)
-    //{
-    //    if (!m_Climbable && CollidesWith(collision, m_WhatIsClimbable))
-    //    {
-    //        Debug.Log("Enter " + collision.name);
-    //        m_Climbable = true;
-    //        SetClimbable(true);
-    //        ClimbEnterEvent.Invoke();
-    //    }
-    //}
 
     private void OnTriggerExit2D(Collider2D collision)
     {

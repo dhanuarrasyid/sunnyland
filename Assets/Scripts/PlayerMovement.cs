@@ -26,6 +26,7 @@ public class PlayerMovement : MonoBehaviour {
         climb = Mathf.Abs(verticalMove) > 0;
 
         animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+        animator.SetFloat("VerticalSpeed", Mathf.Abs(verticalMove));
 
         if(Input.GetButtonDown("Jump"))
         {
