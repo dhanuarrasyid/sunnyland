@@ -18,13 +18,8 @@ public class FrogJumpState : JumpState {
     {
         base.Enter(character);
         speedModifier = 200f;
-        if((int)Time.timeSinceLevelLoad % 6 == 0)
-        {
-            this.character.HorizontalMove = 1;
-        } else
-        {
-            this.character.HorizontalMove = -1; 
-        }
+
     }
+
 
 }

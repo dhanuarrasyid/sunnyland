@@ -28,10 +28,10 @@ public abstract class JumpState : CharacterState {
         this.character.CharAnimator.SetBool("IsJumping", false);
     }
 
-    public override void FixedUpdate()
+    public override void Update()
     {
-        base.FixedUpdate();
-        this.character.Move(this.character.HorizontalMove * speedModifier * Time.fixedDeltaTime);
+        base.Update();
+        //this could probably go in the update method
         if (this.character.IsFalling())
         {
             this.character.ChangeState(FallingState);
@@ -39,6 +39,25 @@ public abstract class JumpState : CharacterState {
         else if (this.character.CanClimb && this.character.VerticalMove > 0)
         {
             this.character.ChangeState(ClimbState);
+        } else if (character.IsGrounded())
+        {
+            character.ChangeState(FallingState);
+        }
+    }
+
+    public override void FixedUpdate()
+    {
+        base.FixedUpdate();
+        this.character.Move(this.character.HorizontalMove * speedModifier * Time.fixedDeltaTime);
+
+
+    }
+
+    public override void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (character.IsGrounded())
+        {
+            character.ChangeState(FallingState);
         }
     }
 }

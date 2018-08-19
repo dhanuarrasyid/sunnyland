@@ -24,6 +24,9 @@ public abstract class Character : MonoBehaviour
 
     [SerializeField] private Collider2D m_CrouchDisableCollider;                // A collider that will be disabled when crouching
 
+    protected HealthManager healthManager;
+    protected int damageAmount = 1;
+
     public float HorizontalMove
     {
         get;
@@ -57,6 +60,11 @@ public abstract class Character : MonoBehaviour
         set;
     }
 
+    public bool IsImmune
+    {
+        get { return healthManager.IsImmune; }
+    }
+
     public Animator CharAnimator
     {
         get;
@@ -71,6 +79,7 @@ public abstract class Character : MonoBehaviour
         m_Rigidbody2D = GetComponent<Rigidbody2D>();
         CharAnimator = GetComponent<Animator>();
         gravityScale = m_Rigidbody2D.gravityScale;
+        healthManager = GetComponent<HealthManager>();
     }
 
 
@@ -143,7 +152,27 @@ public abstract class Character : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    public virtual void Hit(int amount)
+    {
+        if(!healthManager.IsImmune)
+        {
+            healthManager.Hit(amount);
+        }
+
+    }
+
+    public virtual void Damage(Character character)
+    {
+        character.Hit(damageAmount);
+        m_Rigidbody2D.velocity = -1 * m_Rigidbody2D.velocity;
+    }
+
+    public void Die()
+    {
+        Destroy(gameObject);
+    }
+
+    protected virtual void OnTriggerEnter2D(Collider2D collision)
     {
         currentState.OnTriggerEnter2D(collision);
     }

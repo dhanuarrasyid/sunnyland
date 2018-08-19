@@ -57,7 +57,6 @@ public abstract class IdleState : CharacterState {
         }
         else if (this.character.JumpTriggered)
         {
-            Debug.Log("JumpTriggered: " + this.character.JumpTriggered);
             this.character.ChangeState(JumpState);
         }
         else if (this.character.IsGrounded() && this.character.VerticalMove < 0)

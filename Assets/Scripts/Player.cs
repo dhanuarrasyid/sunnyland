@@ -17,4 +17,19 @@ public class Player : Character {
         JumpTriggered = Input.GetButtonDown("Jump");
     }
 
+    public override void Hit(int amount)
+    {
+        base.Hit(amount);
+        if(healthManager.IsAlive)
+        {
+            ChangeState(new PlayerHurtState());
+
+        } else 
+        {
+            
+            ChangeState(new DeadState());
+
+        }
+
+    }
 }

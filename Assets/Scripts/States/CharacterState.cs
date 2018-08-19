@@ -39,7 +39,7 @@ public abstract class CharacterState : ICharacterState {
     {
         if (this.character != null)
         {
-            Debug.Log(this.character.ToString() + " " + str + " " + this.ToString());
+            //Debug.Log(this.character.ToString() + " " + str + " " + this.ToString());
         }
     }
 	

@@ -38,10 +38,7 @@ public class FrogIdleState : IdleState
 
     public override void Update()
     {
-        if ((int)Time.timeSinceLevelLoad % 3 == 0)
-        {
-            this.character.JumpTriggered = true;
-        }
+        
         base.Update(); 
     }
 }
