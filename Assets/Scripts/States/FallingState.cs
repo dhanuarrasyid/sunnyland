@@ -28,14 +28,19 @@ public abstract class FallingState : CharacterState {
         this.character.CharAnimator.SetBool("IsFalling", false);
     }
 
-    public override void Update()
+    public override void OnTriggerEnter2D(Collider2D collision)
     {
-        base.Update();
+        base.OnTriggerEnter2D(collision);
         if (this.character.IsGrounded())
         {
             this.character.ChangeState(IdleState);
         }
-        else if (this.character.CanClimb && this.character.VerticalMove > 0)
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        if (this.character.CanClimb && this.character.VerticalMove > 0)
         {
             this.character.ChangeState(ClimbState);
         }

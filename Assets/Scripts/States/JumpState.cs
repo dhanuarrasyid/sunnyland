@@ -28,6 +28,15 @@ public abstract class JumpState : CharacterState {
         this.character.CharAnimator.SetBool("IsJumping", false);
     }
 
+    public override void OnTriggerExit2D(Collider2D collision)
+    {
+        base.OnTriggerExit2D(collision);
+        if (character.IsGrounded())
+        {
+            character.ChangeState(FallingState);
+        }
+    }
+
     public override void Update()
     {
         base.Update();
@@ -39,9 +48,6 @@ public abstract class JumpState : CharacterState {
         else if (this.character.CanClimb && this.character.VerticalMove > 0)
         {
             this.character.ChangeState(ClimbState);
-        } else if (character.IsGrounded())
-        {
-            character.ChangeState(FallingState);
         }
     }
 
