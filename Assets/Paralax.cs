@@ -7,16 +7,36 @@ public class Paralax : MonoBehaviour {
     public float paralax;
 
     private Vector3 lastPosition;
+
+    private Renderer m_renderer;
 	// Use this for initialization
 	void Start () {
-        lastPosition = cam.transform.position;
+        m_renderer = GetComponent<Renderer>();
 	}
 
     private void FixedUpdate()
     {
-        Vector3 delta = cam.transform.position - lastPosition;
-        transform.position += new Vector3(delta.x * paralax,
-                                          delta.y * paralax);
-        lastPosition = cam.transform.position;
+        if(m_renderer.IsVisibleFrom(cam))
+        {
+            Vector3 camera_position = new Vector3(cam.transform.position.x,
+                                                  cam.transform.position.y);
+            if(lastPosition != null)
+            {
+                Vector3 delta = camera_position - lastPosition;
+                if(Mathf.Abs(delta.x) < 1 && Mathf.Abs(delta.y) < 1)
+                {
+                    transform.position += new Vector3(delta.x * paralax,
+                                                      delta.y * paralax);   
+                }
+            }
+            lastPosition = camera_position;  
+        }
+
     }
+
+    //private bool IsVisible()
+    //{
+    //    Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cam);
+    //    return GeometryUtility.TestPlanesAABB(planes, m_renderer.bounds);
+    //}
 }

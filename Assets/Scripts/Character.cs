@@ -182,6 +182,15 @@ public abstract class Character : MonoBehaviour
         currentState.OnTriggerExit2D(collision);
     }
 
+    private bool CollidesWith(Transform check, LayerMask[] maskArray)
+    {
+        foreach (var mask in maskArray)
+        {
+            if (CollidesWith(check, mask))
+                return true;
+        }
+        return false;
+    }
     private bool CollidesWith(Collider2D collision, LayerMask mask)
     {
         return ((1 << collision.gameObject.layer) & mask) != 0;
