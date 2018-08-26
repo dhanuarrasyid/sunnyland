@@ -18,11 +18,11 @@ public class DeadState : CharacterState
         character.Die();
     }
 
-    public override void Update()
+    public override void FixedUpdate()
     {
-        base.Update();
+        base.FixedUpdate();
         deathTimer -= Time.deltaTime;
-        if(deathTimer <= 0)
+        if (deathTimer <= 0)
         {
             character.ChangeState(new PlayerIdleState());
         }
