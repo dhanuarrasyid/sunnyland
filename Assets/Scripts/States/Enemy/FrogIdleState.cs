@@ -4,29 +4,15 @@ using UnityEngine;
 
 public class FrogIdleState : IdleState
 {
-    public override ICharacterState JumpState
+    ICharacterState JumpState
     {
         get { return new FrogJumpState(); }
     }
 
-    public override ICharacterState RunState
-    {
-        get { return new FrogRunState(); }
-    }
 
-    public override ICharacterState CrouchState
-    {
-        get { return new FrogIdleState(); }
-    }
-
-    public override ICharacterState FallingState
+    ICharacterState FallingState
     {
         get { return new FrogFallingState(); }
-    }
-
-    public override ICharacterState ClimbState
-    {
-        get { return new FrogIdleState(); }
     }
 
     public override void Enter(Character character)
@@ -38,7 +24,15 @@ public class FrogIdleState : IdleState
 
     public override void Update()
     {
-        
-        base.Update(); 
+        base.Update();
+
+        if (this.character.JumpTriggered)
+        {
+            this.character.ChangeState(JumpState);
+        } else if (this.character.IsFalling())
+        {
+            this.character.ChangeState(FallingState);
+        }
     }
+
 }

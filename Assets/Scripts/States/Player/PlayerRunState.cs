@@ -4,18 +4,35 @@ using UnityEngine;
 
 public class PlayerRunState : RunState
 {
-    public override ICharacterState IdleState
+    ICharacterState IdleState
     {
         get { return new PlayerIdleState(); }
     }
 
-    public override ICharacterState JumpState
+    ICharacterState JumpState
     {
         get { return new PlayerJumpState(); }
     }
 
-    public override ICharacterState SlideState
+    ICharacterState SlideState
     {
         get { return new PlayerSlideState(); }
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        if (Mathf.Abs(this.character.HorizontalMove) < 0.01)
+        {
+            this.character.ChangeState(IdleState);
+        }
+        else if (this.character.JumpTriggered)
+        {
+            this.character.ChangeState(JumpState);
+        }
+        else if (this.character.IsGrounded() && this.character.VerticalMove < 0)
+        {
+            this.character.ChangeState(SlideState);
+        }
     }
 }

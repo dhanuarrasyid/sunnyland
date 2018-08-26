@@ -4,11 +4,18 @@ using UnityEngine;
 
 public class Frog : Enemy {
 
+    float jumpTimer;
+    float moveInput = 1f;
 
+    private float JumpTime
+    {
+        get { return Random.Range(1, 5); }
+    }
 
     private void Start()
     {
         facingRight = false;
+        jumpTimer = JumpTime;
         ChangeState(new FrogIdleState());
     }
 
@@ -16,19 +23,15 @@ public class Frog : Enemy {
     {
         if(!IsGrounded())
         {
-            if ((int)Time.timeSinceLevelLoad % 6 == 0)
-            {
-                HorizontalMove = 1;
-            }
-            else
-            {
-                HorizontalMove = -1;
-            }
+            HorizontalMove = moveInput;
         } else
         {
             HorizontalMove = 0;
-            if ((int)Time.timeSinceLevelLoad % 3 == 0)
+            jumpTimer -= Time.deltaTime;
+            if (jumpTimer < 0)
             {
+                jumpTimer = JumpTime;
+                moveInput *= -1;
                 JumpTriggered = true;
             }
         }

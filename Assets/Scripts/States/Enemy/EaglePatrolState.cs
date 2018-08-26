@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class RunState : CharacterState {
+public class EaglePatrolState : CharacterState
+{
     protected virtual float SpeedModifier
     {
-        get { return 400f; }
+        get { return 200f; }
     }
+
     public override void Enter(Character character)
     {
         base.Enter(character);
@@ -17,7 +19,9 @@ public abstract class RunState : CharacterState {
     public override void FixedUpdate()
     {
         base.FixedUpdate();
-        this.character.Move(this.character.HorizontalMove * SpeedModifier * Time.deltaTime);
+        this.character.Move(this.character.HorizontalMove * SpeedModifier * Time.deltaTime,
+                            this.character.VerticalMove * SpeedModifier * Time.deltaTime);
     }
+
 
 }

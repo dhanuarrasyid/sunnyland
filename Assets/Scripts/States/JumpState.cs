@@ -55,8 +55,6 @@ public abstract class JumpState : CharacterState {
     {
         base.FixedUpdate();
         this.character.Move(this.character.HorizontalMove * speedModifier * Time.fixedDeltaTime);
-
-
     }
 
     public override void OnTriggerEnter2D(Collider2D collision)

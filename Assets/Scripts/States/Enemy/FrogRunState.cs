@@ -4,18 +4,35 @@ using UnityEngine;
 
 public class FrogRunState : RunState {
 
-    public override ICharacterState IdleState
+    ICharacterState IdleState
     {
         get { return new FrogIdleState(); }
     }
 
-    public override ICharacterState JumpState
+    ICharacterState JumpState
     {
         get { return new FrogJumpState(); }
     }
 
-    public override ICharacterState SlideState
+    ICharacterState SlideState
     {
         get { return new FrogIdleState(); }
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        if (Mathf.Abs(this.character.HorizontalMove) < 0.01)
+        {
+            this.character.ChangeState(new PlayerIdleState());
+        }
+        else if (this.character.JumpTriggered)
+        {
+            this.character.ChangeState(new PlayerJumpState());
+        }
+        else if (this.character.IsGrounded() && this.character.VerticalMove < 0)
+        {
+            this.character.ChangeState(new PlayerSlideState());
+        }
     }
 }
