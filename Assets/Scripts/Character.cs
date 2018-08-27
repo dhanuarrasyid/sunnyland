@@ -169,6 +169,16 @@ public abstract class Character : MonoBehaviour
 
     public void Die()
     {
+        m_Rigidbody2D.bodyType = RigidbodyType2D.Static;
+        foreach (var collision in GetComponents<Collider2D>())
+        {
+            collision.enabled = false;
+        }
+        ChangeState(new DeadState());
+    }
+
+    public void OnDeathComplete()
+    {
         Destroy(gameObject);
     }
 

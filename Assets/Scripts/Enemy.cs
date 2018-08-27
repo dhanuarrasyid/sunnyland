@@ -15,7 +15,7 @@ public abstract class Enemy : Character
         if (!healthManager.IsAlive)
         {
 
-            ChangeState(new DeadState());
+            Die();
 
         }
 

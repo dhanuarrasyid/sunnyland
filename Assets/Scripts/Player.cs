@@ -26,8 +26,8 @@ public class Player : Character {
 
         } else 
         {
-            
-            ChangeState(new DeadState());
+
+            Die();
 
         }
 
