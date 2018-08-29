@@ -6,8 +6,9 @@ public class LevelChanger : MonoBehaviour {
     Animator animator;
     int levelToLoad;
 
-    void Start()
+    void Awake()
     {
+        Debug.Log("Level Changer Started");
         animator = GetComponent<Animator>();
     }
     // Update is called once per frame

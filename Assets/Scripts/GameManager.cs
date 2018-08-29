@@ -1,12 +1,24 @@
 ﻿using UnityEngine;
 
 public class GameManager : MonoBehaviour {
-    public GameObject levelChangerPrefab;
+
+    public static GameManager gm;
+    public static AudioManager am;
+    [SerializeField]
+    AudioManager audioManager;
     LevelChanger levelChanger;
+    public GameObject levelChangerPrefab;
+
 
 	// Use this for initialization
-	void Start () {
-        levelChanger = Instantiate(levelChangerPrefab).GetComponent<LevelChanger>();
+	void Awake () {
+        
+        if(gm == null)
+        {
+            gm = this;
+            am = audioManager;
+            levelChanger = Instantiate(levelChangerPrefab).GetComponent<LevelChanger>();
+        }
 	}
 	
 	// Update is called once per frame
@@ -14,8 +26,18 @@ public class GameManager : MonoBehaviour {
 		
 	}
 
+    public void StartGame()
+    {
+        levelChanger.FadeToLevel(1);
+    }
+
     public  void LevelComplete()
     {
         levelChanger.FadeToNextLevel();
+    }
+
+    public void Damage(Character damager, Character damaged)
+    {
+        Debug.Log("Game Manager " + damager + " Hit " + damaged);
     }
 }

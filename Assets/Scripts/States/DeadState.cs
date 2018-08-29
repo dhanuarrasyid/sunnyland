@@ -8,5 +8,6 @@ public class DeadState : CharacterState
     {
         base.Enter(character);
         this.character.CharAnimator.SetBool("IsDead", true);
+        GameManager.am.Play("Dead");
     }
 }

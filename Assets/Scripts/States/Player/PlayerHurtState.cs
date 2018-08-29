@@ -8,6 +8,7 @@ public class PlayerHurtState : PlayerState
     {
         base.Enter(character);
         character.CharAnimator.SetBool("IsHurt", true);
+        GameManager.am.Play("Hurt");
     }
 
     public override void Exit()

@@ -12,5 +12,9 @@ public class PlayerJumpState : JumpState
         get { return new PlayerClimbState(); }
     }
 
-
+    public override void Enter(Character character)
+    {
+        base.Enter(character);
+        GameManager.am.Play("Jump");
+    }
 }

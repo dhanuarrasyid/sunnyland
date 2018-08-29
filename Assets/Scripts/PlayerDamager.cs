@@ -20,6 +20,7 @@ public class PlayerDamager : MonoBehaviour {
             Character character = collision.gameObject.GetComponent<Character>();
             if (character != null)
             {
+                GameManager.gm.Damage(damager, character);
                 damager.Damage(character);
             }
         }
