@@ -1,20 +1,34 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using UnityEngine.UI;
 using UnityEngine;
 
 public class HealthManager : MonoBehaviour {
     public int health;
+    public Slider healthBar;
+    
     private float immuneLength = .5f;
     private float lastHitAt = 0f;
 
     public int Health
     {
-        get;
-        private set;
+        get
+        {
+            return health;
+        }
+        private set{
+            health = value;
+            if(healthBar != null)
+            {
+                healthBar.value = value;    
+            }
+        }
     }
 
     private void Awake()
     {
+        if (healthBar != null)
+        {
+            healthBar.maxValue = health;
+        }
         Health = health;
     }
 
